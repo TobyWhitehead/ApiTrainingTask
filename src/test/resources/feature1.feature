@@ -19,3 +19,10 @@ Feature: feature1
     When A get request for the two stations is made
     Then The two stations should be found in the API database
     And The stations values are the same as their post request
+
+  Scenario: Delete the stored stations
+
+    Given Two stations have been stored
+    When A delete request for the two stations is made
+    Then The HTTP response should be 204
+

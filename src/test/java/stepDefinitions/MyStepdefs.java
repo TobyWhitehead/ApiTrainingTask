@@ -14,7 +14,6 @@ public class MyStepdefs {
 
     String code;
     String message;
-    Response response;
     Response response1;
     Response response2;
     Station station1 = new Station();
@@ -23,6 +22,8 @@ public class MyStepdefs {
     Response response4;
     JSONObject jsonObject1;
     JSONObject jsonObject2;
+    Response response5;
+    Response response6;
 
     @Given("The post request does not have an API key")
     public void thePostRequestDoesNotHaveAnAPIKey() {
@@ -140,5 +141,40 @@ public class MyStepdefs {
         assertEquals(jsonObject2.getDouble("longitude"), station2.getLongitude());
         assertEquals(jsonObject2.getDouble("latitude"), station2.getLatitude());
         assertEquals(jsonObject2.getInt("altitude"), station2.getAltitude());
+    }
+
+    @Given("Two stations have been stored")
+    public void twoStationsHaveBeenStored() throws IOException {
+        detailsForTwoStations();
+        thePostRequestForTheTwoStationsIsMade();
+        aGetRequestForTheTwoStationsIsMade();
+        theTwoStationsShouldBeFoundInTheAPIDatabase();
+        theStationsValuesAreTheSameAsTheirPostRequest();
+    }
+
+    @When("A delete request for the two stations is made")
+    public void aDeleteRequestForTheTwoStationsIsMade() throws IOException {
+        OkHttpClient client = new OkHttpClient().newBuilder()
+                .build();
+        String station1ID = jsonObject1.getString("ID");
+        Request request = new Request.Builder()
+                .url("http://api.openweathermap.org/data/3.0/stations/"+station1ID+"?appid=95f11c31e481935a56d1c3d67a6c1419")
+                .method("DELETE", null)
+                .build();
+        response5 = client.newCall(request).execute();
+        OkHttpClient client2 = new OkHttpClient().newBuilder()
+                .build();
+        String station2ID = jsonObject2.getString("ID");
+        Request request2 = new Request.Builder()
+                .url("http://api.openweathermap.org/data/3.0/stations/"+station2ID+"?appid=95f11c31e481935a56d1c3d67a6c1419")
+                .method("DELETE", null)
+                .build();
+        response6 = client2.newCall(request2).execute();
+    }
+
+    @Then("The HTTP response should be {int}")
+    public void theHTTPResponseShouldBe(int arg0) {
+        assertEquals(arg0, response5.code());
+        assertEquals(arg0, response6.code());
     }
 }
