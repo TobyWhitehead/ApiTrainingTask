@@ -11,4 +11,5 @@ Feature: feature1
 
     Given Details for two stations
     When The post request for the two stations is made
-    Then The HTTP response code for the two stations should be
+    Then The HTTP response code for the two stations should be 201
+
