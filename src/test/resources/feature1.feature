@@ -26,3 +26,8 @@ Feature: feature1
     When A delete request for the two stations is made
     Then The HTTP response should be 204
 
+  Scenario: Verify that the stations have been deleted
+
+    Given A delete request for two stations has been made
+    When Another delete request is made for the two stations
+    Then the new HTTP response should be 404

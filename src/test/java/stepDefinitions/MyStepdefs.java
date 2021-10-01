@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class MyStepdefs {
 
-    String code;
+    int code;
     String message;
     Response response1;
     Response response2;
@@ -41,15 +41,15 @@ public class MyStepdefs {
                 .addHeader("Content-Type", "application/json")
                 .build();
         Response response = client.newCall(request).execute();
-        String jsonString = response.message();
+        String jsonString = response.body().string();
         JSONObject jsonObject = new JSONObject(jsonString);
-        code = jsonObject.getString("cod");
+        code = jsonObject.getInt("cod");
         message = jsonObject.getString("message");
     }
 
     @Then("The HTTP response code should be {int}")
     public void theHTTPResponseCodeShouldBe(int arg0) {
-        assertEquals(arg0, Integer.parseInt(code));
+        assertEquals(arg0, code);
     }
 
     @And("The response message text should read correctly")
@@ -174,6 +174,23 @@ public class MyStepdefs {
 
     @Then("The HTTP response should be {int}")
     public void theHTTPResponseShouldBe(int arg0) {
+        assertEquals(arg0, response5.code());
+        assertEquals(arg0, response6.code());
+    }
+
+    @Given("A delete request for two stations has been made")
+    public void aDeleteRequestForTwoStationsHasBeenMade() throws IOException {
+        twoStationsHaveBeenStored();
+        aDeleteRequestForTheTwoStationsIsMade();
+    }
+
+    @When("Another delete request is made for the two stations")
+    public void anotherDeleteRequestIsMadeForTheTwoStations() throws IOException {
+        aDeleteRequestForTheTwoStationsIsMade();
+    }
+
+    @Then("the new HTTP response should be {int}")
+    public void theNewHTTPResponseShouldBe(int arg0) {
         assertEquals(arg0, response5.code());
         assertEquals(arg0, response6.code());
     }
