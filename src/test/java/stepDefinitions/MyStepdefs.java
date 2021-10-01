@@ -14,10 +14,15 @@ public class MyStepdefs {
 
     String code;
     String message;
+    Response response;
     Response response1;
     Response response2;
     Station station1 = new Station();
     Station station2 = new Station();
+    Response response3;
+    Response response4;
+    JSONObject jsonObject1;
+    JSONObject jsonObject2;
 
     @Given("The post request does not have an API key")
     public void thePostRequestDoesNotHaveAnAPIKey() {
@@ -85,5 +90,55 @@ public class MyStepdefs {
     public void theHTTPResponseCodeForTheTwoStationsShouldBe(int arg0) {
         assertEquals(arg0, response1.code());
         assertEquals(arg0, response2.code());
+    }
+
+    @Given("Store attempts were made for two stations")
+    public void storeAttemptsWereMadeForTwoStations() throws IOException {
+        detailsForTwoStations();
+        thePostRequestForTheTwoStationsIsMade();
+    }
+
+    @When("A get request for the two stations is made")
+    public void aGetRequestForTheTwoStationsIsMade() throws IOException {
+        OkHttpClient client = new OkHttpClient().newBuilder()
+                .build();
+        String jsonString1 = response1.body().string();
+        jsonObject1 = new JSONObject(jsonString1);
+        String station1ID = jsonObject1.getString("ID");
+        Request request = new Request.Builder()
+                .url("http://api.openweathermap.org/data/3.0/stations/"+station1ID+"?appid=95f11c31e481935a56d1c3d67a6c1419")
+                .method("GET", null)
+                .build();
+        response3 = client.newCall(request).execute();
+        OkHttpClient client2 = new OkHttpClient().newBuilder()
+                .build();
+        String jsonString2 = response2.body().string();
+        jsonObject2 = new JSONObject(jsonString2);
+        String station2ID = jsonObject2.getString("ID");
+        Request request2 = new Request.Builder()
+                .url("http://api.openweathermap.org/data/3.0/stations/"+station2ID+"?appid=95f11c31e481935a56d1c3d67a6c1419")
+                .method("GET", null)
+                .build();
+        response4 = client2.newCall(request2).execute();
+    }
+
+    @Then("The two stations should be found in the API database")
+    public void theTwoStationsShouldBeFoundInTheAPIDatabase() {
+        assertEquals(200, response3.code());
+        assertEquals(200, response4.code());
+    }
+
+    @And("The stations values are the same as their post request")
+    public void theStationsValuesAreTheSameAsTheirPostRequest() {
+        assertEquals(jsonObject1.getString("external_id"), station1.getExternal_id());
+        assertEquals(jsonObject1.getString("name"), station1.getName());
+        assertEquals(jsonObject1.getDouble("longitude"), station1.getLongitude());
+        assertEquals(jsonObject1.getDouble("latitude"), station1.getLatitude());
+        assertEquals(jsonObject1.getInt("altitude"), station1.getAltitude());
+        assertEquals(jsonObject2.getString("external_id"), station2.getExternal_id());
+        assertEquals(jsonObject2.getString("name"), station2.getName());
+        assertEquals(jsonObject2.getDouble("longitude"), station2.getLongitude());
+        assertEquals(jsonObject2.getDouble("latitude"), station2.getLatitude());
+        assertEquals(jsonObject2.getInt("altitude"), station2.getAltitude());
     }
 }
