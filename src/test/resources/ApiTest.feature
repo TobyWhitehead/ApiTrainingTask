@@ -1,4 +1,4 @@
-Feature: feature1
+Feature: API Test
 
   Scenario: Attempt to register a weather station without an API key
 
