@@ -7,7 +7,6 @@ import io.cucumber.java.en.When;
 import okhttp3.*;
 import org.json.JSONObject;
 import java.io.IOException;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class MyStepdefs {
