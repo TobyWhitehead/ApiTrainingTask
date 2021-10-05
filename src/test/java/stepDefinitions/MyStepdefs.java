@@ -7,6 +7,8 @@ import io.cucumber.java.en.When;
 import okhttp3.*;
 import org.json.JSONObject;
 import java.io.IOException;
+import java.util.Objects;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class MyStepdefs {
@@ -33,14 +35,14 @@ public class MyStepdefs {
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .build();
         MediaType mediaType = MediaType.parse("application/json");
-        RequestBody body = RequestBody.create(mediaType, "");
+        RequestBody body = RequestBody.create("", mediaType);
         Request request = new Request.Builder()
                 .url("http://api.openweathermap.org/data/3.0/stations")
                 .method("POST", body)
                 .addHeader("Content-Type", "application/json")
                 .build();
         Response response = client.newCall(request).execute();
-        String jsonString = response.body().string();
+        String jsonString = Objects.requireNonNull(response.body()).string();
         JSONObject jsonObject = new JSONObject(jsonString);
         code = jsonObject.getInt("cod");
         message = jsonObject.getString("message");
@@ -68,7 +70,7 @@ public class MyStepdefs {
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .build();
         MediaType mediaType = MediaType.parse("application/json");
-        RequestBody body = RequestBody.create(mediaType, "{\r\n\"external_id\": \""+station1.getExternal_id()+"\",\r\n\"name\": \""+station1.getName()+"\",\r\n\"latitude\": "+station1.getLatitude()+",\r\n\"longitude\": "+station1.getLongitude()+",\r\n\"altitude\": "+station1.getAltitude()+"\r\n}");
+        RequestBody body = RequestBody.create("{\r\n\"external_id\": \""+station1.getExternal_id()+"\",\r\n\"name\": \""+station1.getName()+"\",\r\n\"latitude\": "+station1.getLatitude()+",\r\n\"longitude\": "+station1.getLongitude()+",\r\n\"altitude\": "+station1.getAltitude()+"\r\n}", mediaType);
         Request request = new Request.Builder()
                 .url("http://api.openweathermap.org/data/3.0/stations?appid=95f11c31e481935a56d1c3d67a6c1419")
                 .method("POST", body)
@@ -77,7 +79,7 @@ public class MyStepdefs {
         response1 = client.newCall(request).execute();
         OkHttpClient client2 = new OkHttpClient().newBuilder()
                 .build();
-        RequestBody body2 = RequestBody.create(mediaType, "{\r\n\"external_id\": \""+station2.getExternal_id()+"\",\r\n\"name\": \""+station2.getName()+"\",\r\n\"latitude\": "+station2.getLatitude()+",\r\n\"longitude\": "+station2.getLongitude()+",\r\n\"altitude\": "+station2.getAltitude()+"\r\n}");
+        RequestBody body2 = RequestBody.create("{\r\n\"external_id\": \""+station2.getExternal_id()+"\",\r\n\"name\": \""+station2.getName()+"\",\r\n\"latitude\": "+station2.getLatitude()+",\r\n\"longitude\": "+station2.getLongitude()+",\r\n\"altitude\": "+station2.getAltitude()+"\r\n}", mediaType);
         Request request2 = new Request.Builder()
                 .url("http://api.openweathermap.org/data/3.0/stations?appid=95f11c31e481935a56d1c3d67a6c1419")
                 .method("POST", body2)
@@ -102,7 +104,7 @@ public class MyStepdefs {
     public void aGetRequestForTheTwoStationsIsMade() throws IOException {
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .build();
-        String jsonString1 = response1.body().string();
+        String jsonString1 = Objects.requireNonNull(response1.body()).string();
         jsonObject1 = new JSONObject(jsonString1);
         String station1ID = jsonObject1.getString("ID");
         Request request = new Request.Builder()
@@ -112,7 +114,7 @@ public class MyStepdefs {
         response3 = client.newCall(request).execute();
         OkHttpClient client2 = new OkHttpClient().newBuilder()
                 .build();
-        String jsonString2 = response2.body().string();
+        String jsonString2 = Objects.requireNonNull(response2.body()).string();
         jsonObject2 = new JSONObject(jsonString2);
         String station2ID = jsonObject2.getString("ID");
         Request request2 = new Request.Builder()
