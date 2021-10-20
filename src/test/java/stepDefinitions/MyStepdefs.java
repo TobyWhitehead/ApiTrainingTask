@@ -7,56 +7,47 @@ import io.cucumber.java.en.When;
 import okhttp3.*;
 import org.json.JSONObject;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class MyStepdefs {
 
-    int code;
-    String message;
-    Response response1;
-    Response response2;
     Station station1 = new Station();
     Station station2 = new Station();
-    Response response3;
-    Response response4;
     JSONObject jsonObject1;
     JSONObject jsonObject2;
-    Response response5;
-    Response response6;
+    String currentURL;
+    HashMap<String, Object> currentHashMap;
+    HashMap<String, Object> station1HashMap;
+    HashMap<String, Object> station2HashMap;
+    String station1URL;
+    String station2URL;
 
     @Given("The post request does not have an API key")
     public void thePostRequestDoesNotHaveAnAPIKey() {
+        currentURL = "http://api.openweathermap.org/data/3.0/stations";
     }
 
     @When("The post request is made")
     public void thePostRequestIsMade() throws IOException {
-        OkHttpClient client = new OkHttpClient().newBuilder()
-                .build();
-        MediaType mediaType = MediaType.parse("application/json");
-        RequestBody body = RequestBody.create("", mediaType);
-        Request request = new Request.Builder()
-                .url("http://api.openweathermap.org/data/3.0/stations")
-                .method("POST", body)
-                .addHeader("Content-Type", "application/json")
-                .build();
-        Response response = client.newCall(request).execute();
-        String jsonString = Objects.requireNonNull(response.body()).string();
-        JSONObject jsonObject = new JSONObject(jsonString);
-        code = jsonObject.getInt("cod");
-        message = jsonObject.getString("message");
+        apiFunctions apiFunctions = new apiFunctions();
+        String body = "";
+        currentHashMap = apiFunctions.postRequest(currentURL, body);
     }
 
     @Then("The HTTP response code should be {int}")
     public void theHTTPResponseCodeShouldBe(int arg0) {
+        int code = (int) currentHashMap.get("code");
         assertEquals(arg0, code);
     }
 
     @And("The response message text should read correctly")
     public void theResponseMessageTextShouldReadCorrectly() {
         String expectedMessage = "Invalid API key. Please see http://openweathermap.org/faq#error401 for more info.";
-        assertEquals(expectedMessage, message);
+        String actualMessage = (String) currentHashMap.get("message");
+        assertEquals(expectedMessage, actualMessage);
     }
 
     @Given("Details for two stations")
@@ -67,31 +58,18 @@ public class MyStepdefs {
 
     @When("The post request for the two stations is made")
     public void thePostRequestForTheTwoStationsIsMade() throws IOException {
-        OkHttpClient client = new OkHttpClient().newBuilder()
-                .build();
-        MediaType mediaType = MediaType.parse("application/json");
-        RequestBody body = RequestBody.create("{\r\n\"external_id\": \""+station1.getExternal_id()+"\",\r\n\"name\": \""+station1.getName()+"\",\r\n\"latitude\": "+station1.getLatitude()+",\r\n\"longitude\": "+station1.getLongitude()+",\r\n\"altitude\": "+station1.getAltitude()+"\r\n}", mediaType);
-        Request request = new Request.Builder()
-                .url("http://api.openweathermap.org/data/3.0/stations?appid=95f11c31e481935a56d1c3d67a6c1419")
-                .method("POST", body)
-                .addHeader("Content-Type", "application/json")
-                .build();
-        response1 = client.newCall(request).execute();
-        OkHttpClient client2 = new OkHttpClient().newBuilder()
-                .build();
-        RequestBody body2 = RequestBody.create("{\r\n\"external_id\": \""+station2.getExternal_id()+"\",\r\n\"name\": \""+station2.getName()+"\",\r\n\"latitude\": "+station2.getLatitude()+",\r\n\"longitude\": "+station2.getLongitude()+",\r\n\"altitude\": "+station2.getAltitude()+"\r\n}", mediaType);
-        Request request2 = new Request.Builder()
-                .url("http://api.openweathermap.org/data/3.0/stations?appid=95f11c31e481935a56d1c3d67a6c1419")
-                .method("POST", body2)
-                .addHeader("Content-Type", "application/json")
-                .build();
-        response2 = client2.newCall(request2).execute();
+        apiFunctions apiFunctions = new apiFunctions();
+        currentURL = "http://api.openweathermap.org/data/3.0/stations?appid=95f11c31e481935a56d1c3d67a6c1419";
+        station1HashMap = apiFunctions.postRequest(currentURL, station1.toString());
+        station2HashMap = apiFunctions.postRequest(currentURL, station2.toString());
     }
 
     @Then("The HTTP response code for the two stations should be {int}")
     public void theHTTPResponseCodeForTheTwoStationsShouldBe(int arg0) {
-        assertEquals(arg0, response1.code());
-        assertEquals(arg0, response2.code());
+        int code = (int) station1HashMap.get("code");
+        assertEquals(arg0, code);
+        code = (int) station2HashMap.get("code");
+        assertEquals(arg0, code);
     }
 
     @Given("Store attempts were made for two stations")
@@ -102,32 +80,25 @@ public class MyStepdefs {
 
     @When("A get request for the two stations is made")
     public void aGetRequestForTheTwoStationsIsMade() throws IOException {
-        OkHttpClient client = new OkHttpClient().newBuilder()
-                .build();
-        String jsonString1 = Objects.requireNonNull(response1.body()).string();
-        jsonObject1 = new JSONObject(jsonString1);
-        String station1ID = jsonObject1.getString("ID");
-        Request request = new Request.Builder()
-                .url("http://api.openweathermap.org/data/3.0/stations/"+station1ID+"?appid=95f11c31e481935a56d1c3d67a6c1419")
-                .method("GET", null)
-                .build();
-        response3 = client.newCall(request).execute();
-        OkHttpClient client2 = new OkHttpClient().newBuilder()
-                .build();
-        String jsonString2 = Objects.requireNonNull(response2.body()).string();
-        jsonObject2 = new JSONObject(jsonString2);
-        String station2ID = jsonObject2.getString("ID");
-        Request request2 = new Request.Builder()
-                .url("http://api.openweathermap.org/data/3.0/stations/"+station2ID+"?appid=95f11c31e481935a56d1c3d67a6c1419")
-                .method("GET", null)
-                .build();
-        response4 = client2.newCall(request2).execute();
+        apiFunctions apiFunctions = new apiFunctions();
+        Response response = (Response) station1HashMap.get("response");
+        jsonObject1 = new JSONObject(Objects.requireNonNull(response.body()).string());
+        String stationID = jsonObject1.getString("ID");
+        station1URL = "http://api.openweathermap.org/data/3.0/stations/" + stationID + "?appid=95f11c31e481935a56d1c3d67a6c1419";
+        station1HashMap = apiFunctions.getRequest(station1URL);
+        response = (Response) station2HashMap.get("response");
+        jsonObject2 = new JSONObject(Objects.requireNonNull(response.body()).string());
+        stationID = jsonObject2.getString("ID");
+        station2URL = "http://api.openweathermap.org/data/3.0/stations/" + stationID + "?appid=95f11c31e481935a56d1c3d67a6c1419";
+        station2HashMap = apiFunctions.getRequest(station2URL);
     }
 
     @Then("The two stations should be found in the API database")
     public void theTwoStationsShouldBeFoundInTheAPIDatabase() {
-        assertEquals(200, response3.code());
-        assertEquals(200, response4.code());
+        int code = (int) station1HashMap.get("code");
+        assertEquals(200, code);
+        code = (int) station2HashMap.get("code");
+        assertEquals(200, code);
     }
 
     @And("The stations values are the same as their post request")
@@ -155,28 +126,17 @@ public class MyStepdefs {
 
     @When("A delete request for the two stations is made")
     public void aDeleteRequestForTheTwoStationsIsMade() throws IOException {
-        OkHttpClient client = new OkHttpClient().newBuilder()
-                .build();
-        String station1ID = jsonObject1.getString("ID");
-        Request request = new Request.Builder()
-                .url("http://api.openweathermap.org/data/3.0/stations/"+station1ID+"?appid=95f11c31e481935a56d1c3d67a6c1419")
-                .method("DELETE", null)
-                .build();
-        response5 = client.newCall(request).execute();
-        OkHttpClient client2 = new OkHttpClient().newBuilder()
-                .build();
-        String station2ID = jsonObject2.getString("ID");
-        Request request2 = new Request.Builder()
-                .url("http://api.openweathermap.org/data/3.0/stations/"+station2ID+"?appid=95f11c31e481935a56d1c3d67a6c1419")
-                .method("DELETE", null)
-                .build();
-        response6 = client2.newCall(request2).execute();
+        apiFunctions apiFunctions = new apiFunctions();
+        station1HashMap = apiFunctions.deleteRequest(station1URL);
+        station2HashMap = apiFunctions.deleteRequest(station2URL);
     }
 
     @Then("The HTTP response should be {int}")
     public void theHTTPResponseShouldBe(int arg0) {
-        assertEquals(arg0, response5.code());
-        assertEquals(arg0, response6.code());
+        int code = (int) station1HashMap.get("code");
+        assertEquals(arg0, code);
+        code = (int) station2HashMap.get("code");
+        assertEquals(arg0, code);
     }
 
     @Given("A delete request for two stations has been made")
@@ -192,7 +152,9 @@ public class MyStepdefs {
 
     @Then("the new HTTP response should be {int}")
     public void theNewHTTPResponseShouldBe(int arg0) {
-        assertEquals(arg0, response5.code());
-        assertEquals(arg0, response6.code());
+        int code = (int) station1HashMap.get("code");
+        assertEquals(arg0, code);
+        code = (int) station2HashMap.get("code");
+        assertEquals(arg0, code);
     }
 }

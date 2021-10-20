@@ -35,4 +35,8 @@ public class Station {
         this.longitude = longitude;
         this.altitude = altitude;
     }
+
+    public String toString() {
+        return "{\r\n\"external_id\": \""+external_id+"\",\r\n\"name\": \""+name+"\",\r\n\"latitude\": "+latitude+",\r\n\"longitude\": "+longitude+",\r\n\"altitude\": "+altitude+"\r\n}";
+    }
 }
